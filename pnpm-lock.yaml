@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@orbs-network/ton-access':
+        specifier: ^2.3.3
+        version: 2.3.3
       '@tanstack/react-query':
         specifier: ^5.64.1
         version: 5.64.1(react@18.3.1)
@@ -62,6 +65,9 @@ importers:
       react-dom:
         specifier: ^18
         version: 18.3.1(react@18.3.1)
+      ton:
+        specifier: ^13.9.0
+        version: 13.9.0(ton-core@0.53.0(ton-crypto@3.2.0))(ton-crypto@3.2.0)
       tweetnacl:
         specifier: ^1.0.3
         version: 1.0.3
@@ -1163,6 +1169,9 @@ packages:
 
   axios@0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+
+  axios@0.25.0:
+    resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
 
   axios@1.7.9:
     resolution: {integrity: sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw==}
@@ -2672,6 +2681,23 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
+
+  ton-core@0.53.0:
+    resolution: {integrity: sha512-uO/U1oVLdEliWWbwfNQQK+61C+KM0ehcTdHQ6cN0WSEH2UzGfdVFpC4Wb0ph+wUYe/5njl7TA0uL9nif9Q6qwA==}
+    peerDependencies:
+      ton-crypto: '>=3.2.0'
+
+  ton-crypto-primitives@2.0.0:
+    resolution: {integrity: sha512-K+qKjpS0h9sPW6oExcpxnzuQ7nEgHEiDKwIqE/jWD25o8iFGe3FWj1gKxFNbKE9wwYKc5IV8FwrU+raF0KO5nQ==}
+
+  ton-crypto@3.2.0:
+    resolution: {integrity: sha512-fltdBNQ45gARMuGMEOjPZWPJ5eSql8p3CA0Dj7tPv5lhU5ziT8SxXLAzDraR9HJ8YpjBHLVvYyhMLRiEwxgtMQ==}
+
+  ton@13.9.0:
+    resolution: {integrity: sha512-IjZa4vFsyYHzQFY3kMSK/vw8T9b4zSJlSkZOgD8qeP4AFVxcD6pZ7TxfATwLJnA/4MCbaM9DY0V076oMjluDQg==}
+    peerDependencies:
+      ton-core: '>=0.53.0'
+      ton-crypto: '>=3.2.0'
 
   tough-cookie@4.1.4:
     resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
@@ -4450,6 +4476,12 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  axios@0.25.0:
+    dependencies:
+      follow-redirects: 1.15.9
+    transitivePeerDependencies:
+      - debug
+
   axios@1.7.9:
     dependencies:
       follow-redirects: 1.15.9
@@ -6199,6 +6231,33 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
+
+  ton-core@0.53.0(ton-crypto@3.2.0):
+    dependencies:
+      symbol.inspect: 1.0.1
+      ton-crypto: 3.2.0
+
+  ton-crypto-primitives@2.0.0:
+    dependencies:
+      jssha: 3.2.0
+
+  ton-crypto@3.2.0:
+    dependencies:
+      jssha: 3.2.0
+      ton-crypto-primitives: 2.0.0
+      tweetnacl: 1.0.3
+
+  ton@13.9.0(ton-core@0.53.0(ton-crypto@3.2.0))(ton-crypto@3.2.0):
+    dependencies:
+      axios: 0.25.0
+      dataloader: 2.2.3
+      symbol.inspect: 1.0.1
+      teslabot: 1.5.0
+      ton-core: 0.53.0(ton-crypto@3.2.0)
+      ton-crypto: 3.2.0
+      zod: 3.24.1
+    transitivePeerDependencies:
+      - debug
 
   tough-cookie@4.1.4:
     dependencies:

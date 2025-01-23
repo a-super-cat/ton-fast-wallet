@@ -1,9 +1,16 @@
-import {Address, TonClient4} from "@ton/ton";
+import {Address, TonClient4, beginCell, internal, CellType } from "@ton/ton";
 import {CHAIN} from "@/types/tonTypes";
 import {Buffer} from "buffer";
+import { mnemonicNew, mnemonicToPrivateKey } from "@ton/crypto";
+import { abi } from '@/constants/ton';
+import { Maybe } from "@ton/core/dist/utils/maybe";
 
+const tonApiServiceInstance: {value?: TonApiService} = {};
+const contractAddressStr = "EQCaGYSWgEs2MHRXujOTcQ64Ahq4SpsPNag9vq2S63ifBhxy";
 
 export class TonApiService {
+
+  private readonly client: TonClient4;
 
   public static create(client: TonClient4 | CHAIN): TonApiService {
     if (client === CHAIN.MAINNET) {
@@ -18,8 +25,6 @@ export class TonApiService {
     }
     return new TonApiService(client);
   }
-
-  private readonly client: TonClient4;
 
   private constructor(client: TonClient4) {
     this.client = client;
@@ -43,4 +48,16 @@ export class TonApiService {
     return await this.client.getAccount(masterAt.last.seqno, Address.parse(address));
   }
 
+  public async sendMessage() {
+    try {
+
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
 }
+
+const getTonApiServiceInstance = (network: CHAIN) => tonApiServiceInstance.value || (tonApiServiceInstance.value = TonApiService.create(network));
+
+export default getTonApiServiceInstance;

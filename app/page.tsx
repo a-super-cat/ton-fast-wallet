@@ -6,37 +6,45 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@telegram-apps/telegram-ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAccountInfo, checkProof, generatePayload } from '@/server/api';
-import { Account } from '@tonconnect/sdk';
+import { Account, CHAIN } from '@tonconnect/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CheckProofRequest } from '@/types/tonTypes';
+import { useContract } from '@/hooks/useContract';
+import { TonClient4 } from '@ton/ton';
+import { SimpleCounter } from '@/contracts/SimpleCounter';
+import { useTonConnect } from '@/hooks/useTonConnect';
+
+const contractAddressStr = "EQCaGYSWgEs2MHRXujOTcQ64Ahq4SpsPNag9vq2S63ifBhxy";
 
 export default function Home() {
   const firstProofLoading = useRef<boolean>(true);
   const t = useTranslations('i18n');
   const wallet = useTonWallet();
   const queryClient = useQueryClient();
-  const [tonConnectUI] = useTonConnectUI();
+  // const { tonConnectUI, sender } = useTonConnect();
   const [authorized, setAuthorized] = useState(false);
   const [tonkenParam, setTokenParam] = useState<CheckProofRequest>();
 
-  const recreateProofPayload = useCallback(async () => {
-		if (firstProofLoading.current) {
-			tonConnectUI.setConnectRequestParameters({ state: 'loading' });
-			firstProofLoading.current = false;
-		}
+  const { contract_address, conter_value, sendIncress } = useContract();
 
-		const {payload} = await generatePayload();
+  // const recreateProofPayload = useCallback(async () => {
+	// 	if (firstProofLoading.current) {
+	// 		tonConnectUI.setConnectRequestParameters({ state: 'loading' });
+	// 		firstProofLoading.current = false;
+	// 	}
 
-		if (payload) {
-			tonConnectUI.setConnectRequestParameters({ state: 'ready', value: {tonProof: payload} });
-		} else {
-			tonConnectUI.setConnectRequestParameters(null);
-		}
-	}, [tonConnectUI, firstProofLoading])
+	// 	const {payload} = await generatePayload();
 
-  if (firstProofLoading.current) {
-		recreateProofPayload();
-	}
+	// 	if (payload) {
+	// 		tonConnectUI.setConnectRequestParameters({ state: 'ready', value: {tonProof: payload} });
+	// 	} else {
+	// 		tonConnectUI.setConnectRequestParameters(null);
+	// 	}
+	// }, [tonConnectUI, firstProofLoading])
+
+  // if (firstProofLoading.current) {
+	// 	recreateProofPayload();
+	// }
 
   const fetchData = async () => {
     const data = await queryClient.fetchQuery({
@@ -61,31 +69,31 @@ export default function Home() {
   //   console.log('Fetched data:', data);
   // };
 
-  useEffect(() => tonConnectUI.onStatusChange(w => {
-    if (!w) {
-      setAuthorized(false);
-      return;
-    }
-    if (w.connectItems?.tonProof && 'proof' in w.connectItems.tonProof) {
-      setTokenParam({
-        address: w.account.address,
-        network: w.account.chain,
-        public_key: w.account.publicKey?? '',
-        proof: {
-          ...w.connectItems.tonProof.proof,
-          state_init: w.account.walletStateInit,
-        }
-      });;
-    }
+  // useEffect(() => tonConnectUI.onStatusChange(w => {
+  //   if (!w) {
+  //     setAuthorized(false);
+  //     return;
+  //   }
+  //   if (w.connectItems?.tonProof && 'proof' in w.connectItems.tonProof) {
+  //     setTokenParam({
+  //       address: w.account.address,
+  //       network: w.account.chain,
+  //       public_key: w.account.publicKey?? '',
+  //       proof: {
+  //         ...w.connectItems.tonProof.proof,
+  //         state_init: w.account.walletStateInit,
+  //       }
+  //     });;
+  //   }
 
-    // if (!TonProofDemoApi.accessToken) {
-    //   tonConnectUI.disconnect();
-    //   setAuthorized(false);
-    //   return;
-    // }
+  //   // if (!TonProofDemoApi.accessToken) {
+  //   //   tonConnectUI.disconnect();
+  //   //   setAuthorized(false);
+  //   //   return;
+  //   // }
 
-    setAuthorized(true);
-  }), [tonConnectUI]);
+  //   setAuthorized(true);
+  // }), [tonConnectUI]);
 
   return (
     <>
@@ -94,10 +102,20 @@ export default function Home() {
       </header>
       <main>
         {t("header")}
-        <TonConnectButton/>
+        <div className='flex align-middle justify-center'>
+          <TonConnectButton/>
+        </div>
         <Button onClick={fetchData} mode='filled'>
           获取账户信息
         </Button>
+
+        <div>
+          {`-----${conter_value}------`}
+        </div>
+        <div>
+          {contract_address}
+        </div>
+
 
         {/* <Button onClick={() =>checkProof()} mode='filled'>
           获取token
@@ -105,6 +123,10 @@ export default function Home() {
 
         <Button onClick={() =>checkProof()} mode='filled'>
           获取token
+        </Button>
+
+        <Button onClick={sendIncress} mode='filled'>
+          测试合约交互
         </Button>
       </main>
     </>

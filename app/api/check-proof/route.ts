@@ -1,28 +1,13 @@
 import { CheckProofRequest } from "@/server/dto/check-proof-request-dto";
-import { TonApiService } from "@/server/services/ton-api-service";
+import getTonApiServiceInstance from "@/server/services/ton-api-service";
 import { TonProofService } from "@/server/services/ton-proof-service";
 import { badRequest, ok } from "@/server/utils/http-utils";
-import { createAuthToken } from "@/server/utils/jwt";
-import { JWTPayload, jwtVerify } from "jose";
-
-const JWT_SECRET_KEY = 'your_secret_key';
-
-async function verifyToken(token: string): Promise<JWTPayload | null> {
-  const encoder = new TextEncoder();
-  const key = encoder.encode(JWT_SECRET_KEY);
-  try {
-    const {payload} = await jwtVerify(token, key);
-    return payload;
-  } catch (e) {
-    return null;
-  }
-}
-
+import { createAuthToken, verifyToken } from "@/server/utils/jwt";
 
 export async function POST(request: Request) {
   try {
     const body = CheckProofRequest.parse(await request.json());
-    const tonApiService = TonApiService.create(body.network);
+    const tonApiService = getTonApiServiceInstance(body.network);
     const service = new TonProofService();
 
     const isValid = await service.checkProof(body, (address) => tonApiService.getWalletPublicKey(address));

@@ -1,5 +1,5 @@
 import {HttpResponseResolver} from "msw";
-import {TonApiService} from "../services/ton-api-service";
+import getTonApiServiceInstance from "../services/ton-api-service";
 import {badRequest, ok, unauthorized} from "../utils/http-utils";
 import {decodeAuthToken, verifyToken} from "../utils/jwt";
 
@@ -21,7 +21,7 @@ export const getAccountInfo: HttpResponseResolver = async ({request}) => {
       return unauthorized({error: 'Invalid token'});
     }
 
-    const client = TonApiService.create(payload.network);
+    const client = getTonApiServiceInstance(payload.network);
 
     return ok(await client.getAccountInfo(payload.address));
   } catch (e) {

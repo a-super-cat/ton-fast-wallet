@@ -1,4 +1,4 @@
-import { TonApiService } from "@/server/services/ton-api-service";
+import getTonApiServiceInstance from "@/server/services/ton-api-service";
 import { unauthorized, badRequest, ok } from "@/server/utils/http-utils";
 import { verifyToken, decodeAuthToken } from "@/server/utils/jwt";
 
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
       return unauthorized({error: 'Invalid token'});
     }
 
-    const client = TonApiService.create(payload.network);
+    const client = getTonApiServiceInstance(payload.network);
 
     return ok(await client.getAccountInfo(payload.address));
   } catch (e) {

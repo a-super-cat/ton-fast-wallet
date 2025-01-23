@@ -6,7 +6,7 @@ type HttpMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTI
 
 const axiosInstance = axios.create({
   baseURL: '/api',
-  timeout: 5000,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -15,11 +15,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(response => {
   return response;
 }, error => {
-  return Promise.reject({
-    code: error.response.status,
-    message: error.response.data.message,
-    data: error.response.data,
-  });
+  return Promise.reject(error);
 });
 
 axiosInstance.interceptors.request.use(config => {
