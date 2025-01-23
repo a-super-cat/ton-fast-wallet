@@ -1,101 +1,134 @@
-import Image from "next/image";
+'use client';
+
+import { LocaleSwitcher } from '@/components/LocaleSwitcher/LocaleSwitcher';
+import { TonConnectButton, useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTranslations } from 'next-intl';
+import { Button } from '@telegram-apps/telegram-ui';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getAccountInfo, checkProof, generatePayload } from '@/server/api';
+import { Account, CHAIN } from '@tonconnect/sdk';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { CheckProofRequest } from '@/types/tonTypes';
+import { useContract } from '@/hooks/useContract';
+import { TonClient4 } from '@ton/ton';
+import { SimpleCounter } from '@/contracts/SimpleCounter';
+import { useTonConnect } from '@/hooks/useTonConnect';
+
+const contractAddressStr = "EQCaGYSWgEs2MHRXujOTcQ64Ahq4SpsPNag9vq2S63ifBhxy";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const firstProofLoading = useRef<boolean>(true);
+  const t = useTranslations('i18n');
+  const wallet = useTonWallet();
+  const queryClient = useQueryClient();
+  // const { tonConnectUI, sender } = useTonConnect();
+  const [authorized, setAuthorized] = useState(false);
+  const [tonkenParam, setTokenParam] = useState<CheckProofRequest>();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const { contract_address, conter_value, sendIncress } = useContract();
+
+  // const recreateProofPayload = useCallback(async () => {
+	// 	if (firstProofLoading.current) {
+	// 		tonConnectUI.setConnectRequestParameters({ state: 'loading' });
+	// 		firstProofLoading.current = false;
+	// 	}
+
+	// 	const {payload} = await generatePayload();
+
+	// 	if (payload) {
+	// 		tonConnectUI.setConnectRequestParameters({ state: 'ready', value: {tonProof: payload} });
+	// 	} else {
+	// 		tonConnectUI.setConnectRequestParameters(null);
+	// 	}
+	// }, [tonConnectUI, firstProofLoading])
+
+  // if (firstProofLoading.current) {
+	// 	recreateProofPayload();
+	// }
+
+  const fetchData = async () => {
+    const data = await queryClient.fetchQuery({
+      queryKey: ['myData'],
+      queryFn: getAccountInfo,
+    });
+    console.log('Fetched data:', data);
+  };
+  const account = wallet?.account ?? {} as Account;
+
+  useQuery({
+    queryKey: ['token'],
+    enabled: !!tonkenParam,
+    queryFn: () => checkProof(tonkenParam!),
+  })
+
+  // const getToken = async () => {
+  //   const data = await queryClient.fetchQuery({
+  //     queryKey: ['myData'],
+  //     queryFn: () => checkProof(),
+  //   });
+  //   console.log('Fetched data:', data);
+  // };
+
+  // useEffect(() => tonConnectUI.onStatusChange(w => {
+  //   if (!w) {
+  //     setAuthorized(false);
+  //     return;
+  //   }
+  //   if (w.connectItems?.tonProof && 'proof' in w.connectItems.tonProof) {
+  //     setTokenParam({
+  //       address: w.account.address,
+  //       network: w.account.chain,
+  //       public_key: w.account.publicKey?? '',
+  //       proof: {
+  //         ...w.connectItems.tonProof.proof,
+  //         state_init: w.account.walletStateInit,
+  //       }
+  //     });;
+  //   }
+
+  //   // if (!TonProofDemoApi.accessToken) {
+  //   //   tonConnectUI.disconnect();
+  //   //   setAuthorized(false);
+  //   //   return;
+  //   // }
+
+  //   setAuthorized(true);
+  // }), [tonConnectUI]);
+
+  return (
+    <>
+      <header>
+        <LocaleSwitcher/>
+      </header>
+      <main>
+        {t("header")}
+        <div className='flex align-middle justify-center'>
+          <TonConnectButton/>
         </div>
+        <Button onClick={fetchData} mode='filled'>
+          获取账户信息
+        </Button>
+
+        <div>
+          {`-----${conter_value}------`}
+        </div>
+        <div>
+          {contract_address}
+        </div>
+
+
+        {/* <Button onClick={() =>checkProof()} mode='filled'>
+          获取token
+        </Button> */}
+
+        <Button onClick={() =>checkProof()} mode='filled'>
+          获取token
+        </Button>
+
+        <Button onClick={sendIncress} mode='filled'>
+          测试合约交互
+        </Button>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </>
   );
 }
