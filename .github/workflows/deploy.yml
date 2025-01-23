@@ -19,10 +19,10 @@ jobs:
         node-version: '20'  # 根据你的项目需求调整 Node.js 版本
 
     - name: Install dependencies
-      run: npm install
+      run: npm i pnpm -g && pnpm i
 
     - name: Build project
-      run: npm run build  # 根据你的项目构建命令调整
+      run: pnpm run build  # 根据你的项目构建命令调整
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
