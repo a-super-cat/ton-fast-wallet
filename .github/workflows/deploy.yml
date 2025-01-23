@@ -3,29 +3,29 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # 或者你希望触发部署的分支名称
+      - main  # Deploy on pushes to the main branch. Change this if needed.
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'  # 根据你的项目需求调整 Node.js 版本
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # Or your preferred Node.js version
+          cache: 'npm'
 
-    - name: Install dependencies
-      run: npm i pnpm -g && pnpm i
+      - name: Install dependencies
+        run: npm i pnpm -g && pnpm i # Or yarn install
 
-    - name: Build project
-      run: pnpm run build  # 根据你的项目构建命令调整
+      - name: Build the project
+        run: pnpm run build # Or yarn build.  Replace with your build command.
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist  # 根据你的静态文件目录调整
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build # Path to your built project directory
